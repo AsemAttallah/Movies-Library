@@ -13,8 +13,9 @@ const apikey = process.env.API_KEY
 app.get('/',homeHandler)
 app.get('/favorite',favoriteHandler)
 app.get('/trending',trendingHandler)
-app.get('/search',searchtTendingHandler)
-
+app.get('/search',searchHandler)
+app.get('/discover',discoverHandler)
+app.get('/genre',genreHandler)
 
 app.get('*',handleError)
 
@@ -31,10 +32,9 @@ function favoriteHandler(req,res){
 }
 
 function trendingHandler(req,res){
-    let url=`https://api.themoviedb.org/3/trending/all/week?api_key=37ddc7081e348bf246a42f3be2b3dfd0&language=en-US`;
+    let url=`https://api.themoviedb.org/3/trending/all/week?api_key=${apikey}&language=en-US`;
   axios.get(url)
   .then((result)=>{
-    console.log(result.data.results);
     let dataTrending=result.data.results.map((results)=>{
         return new Trending(results.id,results.title,results.release_date,results.poster_path,results.overview)
     })
@@ -46,21 +46,49 @@ function trendingHandler(req,res){
 
 }
 
-function searchtTendingHandler(req,res){
-            let movieName=req.query.name
-            let url=`https://api.themoviedb.org/3/search/movie?api_key=${apikey}&query=${movieName}`;
-            axios.get(url)
-      .then((result)=>{
+function searchHandler(req,res){
+  let movieName=req.query.name
+  let url=`https://api.themoviedb.org/3/search/movie?api_key=${apikey}&query=${movieName}`;
+  axios.get(url)
+    .then((result)=>{
         let response=result.data.results;
         res.json(response);
         })
       
-      .catch((err)=>{
-        console.log(err);
-      })
+    .catch((err)=>{
+      console.log(err);
+   })
 }
 
+function discoverHandler(req,res){
+  let url=`https://api.themoviedb.org/3/discover/movie?api_key=${apikey}`;
+axios.get(url)
+.then((result)=>{
+  let dataDiscover=result.data.results.map((results)=>{
+      return new Discover(results.title,results.release_date,results.overview)
+  })
+  res.json(dataDiscover);
+})
+.catch((err)=>{
+  console.log(err);
+})
 
+}
+
+function genreHandler(req,res){
+  let url=`https://api.themoviedb.org/3/genre/movie/list?api_key=${apikey}&language=en-US`;
+axios.get(url)
+.then((result)=>{
+  let dataGenre=result.data.genres.map((results)=>{
+      return new Genre(results.id,results.name)
+  })
+  res.json(dataGenre);
+})
+.catch((err)=>{
+  console.log(err);
+})
+
+}
 
 
 function handleError(req,res){
@@ -81,6 +109,17 @@ function Trending(id,title,release_date,poster_path,overview){
     this.release_date=release_date;
     this.poster_path=poster_path;
     this.overview=overview;
+}
+
+function Discover(title,release_date,overview){
+  this.title=title;
+  this.release_date=release_date;
+  this.overview=overview;
+}
+
+function Genre(id,name){
+  this.id=id;
+  this.name=name;
 }
 
 app.listen(port, () => {
