@@ -1,6 +1,7 @@
 'use strict';
 const express = require('express')
 const cors = require('cors')
+const bodyParser = require('body-parser')
 const axios = require('axios');
 require('dotenv').config();
 const movieData=require("./data.json");
@@ -8,6 +9,11 @@ const app = express()
 app.use(cors());
 const port = process.env.PORT
 const apikey = process.env.API_KEY
+app.use(bodyParser.urlencoded({ extended: false }))
+app.use(bodyParser.json())
+const { Client } = require('pg')
+let url=process.env.URL
+const client = new Client(url)
 
 // routs
 app.get('/',homeHandler)
@@ -16,15 +22,16 @@ app.get('/trending',trendingHandler)
 app.get('/search',searchHandler)
 app.get('/discover',discoverHandler)
 app.get('/genre',genreHandler)
+app.post('/addMovie',addMovieHandler)
+app.get('/getMovies',getMoviesHandler)
 
 app.get('*',handleError)
 
+//functions
 function homeHandler(req,res){
     
-    let movie1=new Movies(movieData.title,movieData.poster_path,movieData.overview);
-    res.json(movie1);
+  res.send('Welcome to home page');
 }
-
 
 function favoriteHandler(req,res){
     
@@ -90,6 +97,29 @@ axios.get(url)
 
 }
 
+function addMovieHandler (req,res){
+  let name=req.body.name;
+  let id=req.body.id;
+  let year=req.body.year;
+  
+  let sql=`INSERT INTO movies (name,id,year)
+  VALUES ($1,$2,$3) RETURNING *;`
+  let values=[name,id,year]
+  client.query(sql,values).then((myResult)=>{
+    res.status(201).json(myResult.rows)
+
+  }
+    
+  ).catch()
+}
+
+function getMoviesHandler(req,res){
+  let sql =`SELECT * FROM movies;`
+  client.query(sql).then((result)=>{
+    res.json(result.rows)
+  }).catch()
+
+}
 
 function handleError(req,res){
     
@@ -122,7 +152,12 @@ function Genre(id,name){
   this.name=name;
 }
 
-app.listen(port, () => {
+client.connect().then(()=>{
+  app.listen(port, () => {
     console.log(`Example app listening on port ${port}`)
   })
+})
+.catch()
+
+
 
