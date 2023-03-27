@@ -99,12 +99,12 @@ axios.get(url)
 
 function addMovieHandler (req,res){
   let name=req.body.name;
-  let id=req.body.id;
   let year=req.body.year;
+  let comment=req.body.comment;
   
-  let sql=`INSERT INTO movies (name,id,year)
+  let sql=`INSERT INTO movies (name,year,comment)
   VALUES ($1,$2,$3) RETURNING *;`
-  let values=[name,id,year]
+  let values=[name,year,comment]
   client.query(sql,values).then((myResult)=>{
     res.status(201).json(myResult.rows)
 
