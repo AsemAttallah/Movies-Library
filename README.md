@@ -3,7 +3,7 @@
 **Author Name**: Asem Attallah
 
 ## WRRC
-![WRRC](WRRC4.jpeg)
+![WRRC](WRRC5.jpg)
 
 ## Overview
 This is the third project in back-end part in this course.Here I'm building a server by using express framework.And here I started to  make and deal with database.
@@ -42,7 +42,10 @@ To build a server using express follow these steps:
 
 7. '/addMovie' end-point => response : to add the data from the body to my database. 
 
-8. '/getMovies' end-point => response : to get all data in my database.
+8. '/getMovies' end-point => response : to get a specific data in my database.
 
+9. /updateMovie/:id end-point => response :to make update on comment in my data
+
+10. /delete/:id end-point => response : to delete a pecific data in my database.
     
     

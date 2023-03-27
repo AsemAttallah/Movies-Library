@@ -24,7 +24,8 @@ app.get('/discover',discoverHandler)
 app.get('/genre',genreHandler)
 app.post('/addMovie',addMovieHandler)
 app.get('/getMovies',getMoviesHandler)
-app.put('/updateMovie/:Name',handlerUpdateMovie)
+app.put('/updateMovie/:id',updateMovieHandler)
+app.delete('/delete/:id',deleteHandler)
 
 
 app.get('*',handleError)
@@ -101,43 +102,61 @@ axios.get(url)
 
 function addMovieHandler (req,res){
   let name=req.body.name;
-  let year=req.body.year;
+  let id=req.body.id;
   let comment=req.body.comment;
   
-  let sql=`INSERT INTO movie (name,year,comment)
+  let sql=`INSERT INTO movie (name,id,comment)
   VALUES ($1,$2,$3) RETURNING *;`
-  let values=[name,year,comment]
+  let values=[name,id,comment]
   client.query(sql,values).then((myResult)=>{
     res.status(201).json(myResult.rows)
 
   }
     
-  ).catch()
+  ).catch((err)=>{
+    console.log(err);
+ })
 }
 
 function getMoviesHandler(req,res){
-  let sql =`SELECT * FROM movie;`
+  let sql =`SELECT id FROM movie;`
   client.query(sql).then((result)=>{
     res.json(result.rows)
-  }).catch()
+  }).catch((err)=>{
+    console.log(err);
+ })
 
 }
 
-function handlerUpdateMovie(req,res){
-  let movieName=req.params.Name;
+function updateMovieHandler(req,res){
+  let idNum=req.params.id;
   let name=req.body.name;
-  let year=req.body.year;
+  let id=req.body.id;
   let comment=req.body.comment;
   let sql=`UPDATE movie
-  SET name = $1, year = $2, comment =$3
-  WHERE name=$4;`
-  let values=[name,year,comment,movieName]
+  SET  comment =$1
+  WHERE id=$2 RETURNING *;`
+  let values=[comment,idNum]
   client.query(sql,values).then(result=>{
-    console.log(result);
-    res.send("Updated")
-  }).catch()
+    console.log(result.rows);
+    res.send(result.rows)
+  }).catch((err)=>{
+    console.log(err);
+ })
   
 }
+
+function deleteHandler(req,res){
+  let deleteMovie=req.params.id;
+  let sql=`DELETE FROM movie WHERE name=$1;`
+  let values=[deleteMovie];
+  client.query(sql,values).then(result=>{
+    res.status(204).send("Deleted");
+  }).catch((err)=>{
+    console.log(err);
+ })
+}
+
 
 function handleError(req,res){
     
