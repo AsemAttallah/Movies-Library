@@ -24,6 +24,8 @@ app.get('/discover',discoverHandler)
 app.get('/genre',genreHandler)
 app.post('/addMovie',addMovieHandler)
 app.get('/getMovies',getMoviesHandler)
+app.put('/updateMovie/:Name',handlerUpdateMovie)
+
 
 app.get('*',handleError)
 
@@ -102,7 +104,7 @@ function addMovieHandler (req,res){
   let year=req.body.year;
   let comment=req.body.comment;
   
-  let sql=`INSERT INTO movies (name,year,comment)
+  let sql=`INSERT INTO movie (name,year,comment)
   VALUES ($1,$2,$3) RETURNING *;`
   let values=[name,year,comment]
   client.query(sql,values).then((myResult)=>{
@@ -114,11 +116,27 @@ function addMovieHandler (req,res){
 }
 
 function getMoviesHandler(req,res){
-  let sql =`SELECT * FROM movies;`
+  let sql =`SELECT * FROM movie;`
   client.query(sql).then((result)=>{
     res.json(result.rows)
   }).catch()
 
+}
+
+function handlerUpdateMovie(req,res){
+  let movieName=req.params.Name;
+  let name=req.body.name;
+  let year=req.body.year;
+  let comment=req.body.comment;
+  let sql=`UPDATE movie
+  SET name = $1, year = $2, comment =$3
+  WHERE name=$4;`
+  let values=[name,year,comment,movieName]
+  client.query(sql,values).then(result=>{
+    console.log(result);
+    res.send("Updated")
+  }).catch()
+  
 }
 
 function handleError(req,res){
