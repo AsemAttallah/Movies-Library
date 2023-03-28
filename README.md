@@ -42,10 +42,12 @@ To build a server using express follow these steps:
 
 7. '/addMovie' end-point => response : to add the data from the body to my database. 
 
-8. '/getMovies' end-point => response : to get a specific data in my database.
+8. '/getMovies' end-point => response : to get all data from my database.
 
 9. /updateMovie/:id end-point => response :to make update on comment in my data
 
 10. /delete/:id end-point => response : to delete a pecific data in my database.
+
+11. /getIdMovie/:id end-point => response : to get a specific data from my database.
     
     

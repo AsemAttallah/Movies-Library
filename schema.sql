@@ -1,5 +1,6 @@
+DROP TABLE IF EXISTS movie;
 CREATE TABLE movie (
+    ID SERIAL PRIMARY KEY,
     name VARCHAR(255),
-    id VARCHAR(255),
     comment VARCHAR(255)
 );

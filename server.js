@@ -26,6 +26,7 @@ app.post('/addMovie',addMovieHandler)
 app.get('/getMovies',getMoviesHandler)
 app.put('/updateMovie/:id',updateMovieHandler)
 app.delete('/delete/:id',deleteHandler)
+app.get('/getIdMovie/:id',getHandler)
 
 
 app.get('*',handleError)
@@ -102,14 +103,13 @@ axios.get(url)
 
 function addMovieHandler (req,res){
   let name=req.body.name;
-  let id=req.body.id;
   let comment=req.body.comment;
   
-  let sql=`INSERT INTO movie (name,id,comment)
-  VALUES ($1,$2,$3) RETURNING *;`
-  let values=[name,id,comment]
-  client.query(sql,values).then((myResult)=>{
-    res.status(201).json(myResult.rows)
+  let sql=`INSERT INTO movie (name,comment)
+  VALUES ($1,$2) RETURNING *;`
+  let values=[name,comment]
+  client.query(sql,values).then((result)=>{
+    res.status(201).json(result.rows)
 
   }
     
@@ -119,7 +119,7 @@ function addMovieHandler (req,res){
 }
 
 function getMoviesHandler(req,res){
-  let sql =`SELECT id FROM movie;`
+  let sql =`SELECT * FROM movie;`
   client.query(sql).then((result)=>{
     res.json(result.rows)
   }).catch((err)=>{
@@ -129,14 +129,12 @@ function getMoviesHandler(req,res){
 }
 
 function updateMovieHandler(req,res){
-  let idNum=req.params.id;
-  let name=req.body.name;
-  let id=req.body.id;
+  let id=req.params.id;
   let comment=req.body.comment;
   let sql=`UPDATE movie
-  SET  comment =$1
+  SET  comment =$1 
   WHERE id=$2 RETURNING *;`
-  let values=[comment,idNum]
+  let values=[comment,id]
   client.query(sql,values).then(result=>{
     console.log(result.rows);
     res.send(result.rows)
@@ -147,16 +145,27 @@ function updateMovieHandler(req,res){
 }
 
 function deleteHandler(req,res){
-  let deleteMovie=req.params.id;
-  let sql=`DELETE FROM movie WHERE name=$1;`
-  let values=[deleteMovie];
+  let id=req.params.id;
+  let sql=`DELETE FROM movie WHERE id=$1;`
+  let values=[id];
   client.query(sql,values).then(result=>{
-    res.status(204).send("Deleted");
+    res.send("Deleted");
   }).catch((err)=>{
     console.log(err);
  })
 }
 
+function getHandler(req,res){
+  let id=req.params.id;
+  let sql =`SELECT * FROM movie WHERE id =$1;`
+  let values=[id]
+  client.query(sql,values).then((result)=>{
+    res.json(result.rows)
+  }).catch((err)=>{
+    console.log(err);
+ })
+
+}
 
 function handleError(req,res){
     
